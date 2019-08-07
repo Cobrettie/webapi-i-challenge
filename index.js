@@ -19,17 +19,34 @@ server.get('/', (req, res) => {
 // GET request to return an array of all user objects contained in the database
 server.get('/api/users', (req, res) => {
     db.find()
-        .then(users => {
-            res.json(users)
-            console.log('users', users)
+        .then(allUsers => {
+            res.status(200).json(allUsers) // res.json same as res.send, we just say send(res.) json
         })
         .catch(err => {
-            res.status(418).json({
-                err: err,
-                message: 'error'
+            res.status(500).json({
+                error: 'The users information could not be retrieved'
             })
         })
 });
+
+// GET request to return user object with specified id
+server.get('/api/users/:id', (req, res) => {
+    db.findById(req.params.id)
+    .then(user => {
+        if(user) {
+            res.status(200).json(user)
+        } else {
+            res.status(404).json({
+                message: 'The user with the specified ID does not exist'
+            })
+        }
+    })
+    .catch(() => {
+        res.status(500).json({
+            error: 'The user information could not be received'
+        })
+    })
+})
 
 // POST method
 server.post('/api/users', (req, res) => {
