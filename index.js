@@ -96,7 +96,37 @@ server.delete('/api/users/:id', (req, res) => {
         })
 })
 
+// PUT Updates the user with the specified id using data from the request body. Returns the modified document, NOT the original.
+// update(): accepts two arguments, the first is the id of the user to update and the second is an object with the changes to apply. It returns the count of updated records. If the count is 1 it means the record was updated correctly.
+server.put('/api/users/:id', (req, res) => {
+    const { name, bio } = req.body;
+
+    if(!name || !bio) {
+        res.status(400).json({
+            errorMessage: 'Please provide both name and bio for the user'
+        })
+    } else {
+        db.update(req.params.id, req.body)
+            .then(user => {
+                if(user) {
+                    res.status(200).json(user)
+                } else {
+                    res.status(404).json({
+                        message: 'The user with the specified ID does not exist'
+                    })
+                }
+            })
+            .catch(() => {
+                res.status(500).json({
+                    error: 'The user information could not be modified'
+                })
+            })
+    }
+})
+
+
 // server now ready to receive requests
+// server listening
 server.listen(4000, () => {
     console.log('server is running on port 4000...');
-});
+})
